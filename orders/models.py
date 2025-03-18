@@ -31,6 +31,7 @@ class Dish(models.Model):
         ('Фастфуд', 'Фастфуд'),
     ])
     is_popular = models.BooleanField(default=False)
+    description = models.TextField(null=True, blank=True)  # Добавляем поле description
 
     def __str__(self):
         return self.name
