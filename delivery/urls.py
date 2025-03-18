@@ -15,33 +15,23 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-
-# delivery/urls.py
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from orders.views import FoodItemViewSet, OrderViewSet
-from orders.views import FoodItemViewSet, OrderViewSet
-from django.views.generic import TemplateView  # Импортируем шаблон для главной страницы
+from orders.views import FoodItemViewSet, OrderViewSet, DishListView  # Импорт из orders.views
+from django.views.generic import TemplateView  # Шаблон для главной страницы
 
+# Создаём роутер и регистрируем ViewSet'ы
 router = DefaultRouter()
 router.register(r'food-items', FoodItemViewSet)
 router.register(r'orders', OrderViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include(router.urls)),
+    path('api/', include(router.urls)),  # API маршруты для food-items и orders
+    path('api/dishes/', DishListView.as_view(), name='dish-list'),  # Путь для блюд
     path('', TemplateView.as_view(template_name='index.html')),  # Главная страница
-
-]# delivery/urls.py
-
-
-
-
-# Создаем маршруты для API
-router = DefaultRouter()
-router.register(r'food-items', FoodItemViewSet)
-router.register(r'orders', OrderViewSet)
-
+    path('orders/', include('orders.urls')),  # Подключаем urls из приложения orders
+]
 
    

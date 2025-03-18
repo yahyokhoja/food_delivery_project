@@ -40,6 +40,22 @@ INSTALLED_APPS = [
     'rest_framework',
     'orders',  # Регистрация приложения orders
     'delivery',  # Регистрация приложения delivery
+    'django_filters',
+    'rest_framework.authtoken',
+    'corsheaders',  # Убедись, что corsheaders зарегистрирован
+    # Другие приложения...
+
+     # Другие приложения...
+    
+    
+   
+  
+    
+    
+
+
+
+
 ]
 
 MIDDLEWARE = [
@@ -50,6 +66,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+      'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+
 ]
 
 ROOT_URLCONF = 'delivery.urls'
@@ -117,10 +137,20 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
-
+import os
 STATIC_URL = 'static/'
+
+
+# Пути к статическим файлам (React build)
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'frontend', 'build', 'static'),]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+]
