@@ -3,7 +3,7 @@ from django.contrib import admin
 # Register your models here.
 from .models import Product
 from django.contrib import admin
-from .models import Dish
+from .models import Dish, Category
 
 @admin.register(Dish)
 class DishAdmin(admin.ModelAdmin):
@@ -20,3 +20,4 @@ class ProductAdmin(admin.ModelAdmin):
 
 # Правильная регистрация модели с классом администратора
 admin.site.register(Product, ProductAdmin)
+admin.site.register(Category) 

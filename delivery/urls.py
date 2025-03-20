@@ -32,6 +32,8 @@ urlpatterns = [
     path('api/dishes/', DishListView.as_view(), name='dish-list'),  # Путь для блюд
     path('', TemplateView.as_view(template_name='index.html')),  # Главная страница
     path('orders/', include('orders.urls')),  # Подключаем urls из приложения orders
+     path("api/auth/", include("djoser.urls")),
+    path("api/auth/", include("djoser.urls.authtoken")),
 ]
 
    

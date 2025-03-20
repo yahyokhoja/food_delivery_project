@@ -47,7 +47,15 @@ INSTALLED_APPS = [
 
      # Другие приложения...
     
+    "users",
+   
+    "djoser",
+
     
+   
+    
+   
+   
    
   
     
@@ -153,4 +161,37 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
+
+
+
+
 ]
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.AllowAny",
+    ),
+}
+
+DJOSER = {
+    "USER_ID_FIELD": "id",
+    "LOGIN_FIELD": "email",  # если регистрация по email
+    "SEND_ACTIVATION_EMAIL": False,
+    "SERIALIZERS": {
+        "user_create": "users.serializers.CustomUserSerializer",  # свой сериализатор (если кастомная модель)
+        "user": "users.serializers.CustomUserSerializer",
+    },
+}
+
+AUTH_USER_MODEL = "users.User"

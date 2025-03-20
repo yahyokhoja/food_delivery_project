@@ -1,6 +1,5 @@
 
-import './App.css';
-
+import Menu from "./components/Menu";
 
 // function App() {
 //   return (
@@ -26,7 +25,7 @@ import './App.css';
 
 
 
-import Menu from "./Menu";
+
 
 function App() {
     return (
@@ -38,3 +37,4 @@ function App() {
 }
 
 export default App;
+
