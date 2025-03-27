@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список заказов</title>
+</head>
+<body>
+    <h1>Список заказов</h1>
+    <a href="{% url 'create_order' %}">Создать новый заказ</a>
+    <ul>
+        {% for order in orders %}
+            <li>{{ order.field1 }} - {{ order.field2 }} - {{ order.field3 }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

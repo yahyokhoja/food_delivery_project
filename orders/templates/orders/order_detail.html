@@ -1,0 +1,27 @@
+<!-- orders/order_detail.html -->
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Детали заказа</title>
+</head>
+<body>
+    <h1>Детали заказа #{{ order.id }}</h1>
+    
+    <h2>Заказчик: {{ order.user.username }}</h2>
+    <p><strong>Дата заказа:</strong> {{ order.created_at }}</p>
+    
+    <h3>Состав заказа:</h3>
+    <ul>
+        {% for item in order.items.all %}
+            <li>{{ item.food.name }} - {{ item.quantity }} шт. на сумму {{ item.total_price }}₽</li>
+        {% endfor %}
+    </ul>
+    
+    <h3>Итого: {{ order.total_price }}₽</h3>
+
+    <a href="{% url 'order_list' %}">Вернуться к списку заказов</a>
+</body>
+</html>

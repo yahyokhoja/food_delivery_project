@@ -11,10 +11,11 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -28,8 +29,6 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
-# Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -38,47 +37,26 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'orders',  # Регистрация приложения orders
-    'delivery',  # Регистрация приложения delivery
+    'orders',
+    'delivery',
     'django_filters',
     'rest_framework.authtoken',
-    'corsheaders',  # Убедись, что corsheaders зарегистрирован
-    # Другие приложения...
-
-     # Другие приложения...
-    
-    "users",
-   
+    'corsheaders',
+    "users",  # Использование нового класса UsersConfig
     "djoser",
-
-    
-   
-    
-   
-   
-   
-  
-    
-    
-
-
-
-
 ]
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
+    'django.middleware.common.CommonMiddleware',  # Оставьте только одну строку
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
-      'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
-
+    'corsheaders.middleware.CorsMiddleware',
 ]
+
+
 
 ROOT_URLCONF = 'delivery.urls'
 
@@ -102,8 +80,6 @@ WSGI_APPLICATION = 'delivery.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -113,8 +89,6 @@ DATABASES = {
 
 
 # Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -132,49 +106,36 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-
-LANGUAGE_CODE = 'en-us'
-
+LANGUAGE_CODE = 'ru'
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-import os
 STATIC_URL = 'static/'
 
-
-# Пути к статическим файлам (React build)
+# Путь к статическим файлам для React (build)
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'frontend', 'build', 'static'),]
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-
-
-
-
+    os.path.join(BASE_DIR, 'frontend', 'build', 'static'),  # для статики из React
+    BASE_DIR / "static",  # для статики из Django
 ]
+STATIC_ROOT = BASE_DIR / "staticfiles"  # Путь, где соберутся все статики
 
-from datetime import timedelta
 
+# JWT настройки
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
+# Настройки CORS
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',  # Адрес фронтенда (React)
+]
+
+# Django Rest Framework настройки
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -184,6 +145,7 @@ REST_FRAMEWORK = {
     ),
 }
 
+# Настройки для DJOSER (если используется для работы с пользователями)
 DJOSER = {
     "USER_ID_FIELD": "id",
     "LOGIN_FIELD": "email",  # если регистрация по email
@@ -193,5 +155,18 @@ DJOSER = {
         "user": "users.serializers.CustomUserSerializer",
     },
 }
+AUTHENTICATION_BACKENDS = [
+    'users.auth_backends.PhoneAuthenticationBackend',  # Указываем кастомный бэкенд
+    'django.contrib.auth.backends.ModelBackend',  # Стандартный бэкенд для администратора
+]
 
-AUTH_USER_MODEL = "users.User"
+
+# Настройки для кастомной модели пользователя
+AUTH_USER_MODEL = 'users.CustomUser'
+
+
+# Default primary key field type
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Заголовки админки
+

@@ -1,23 +1,15 @@
+# orders/admin.py
 from django.contrib import admin
-
-# Register your models here.
 from .models import Product
-from django.contrib import admin
-from .models import Dish, Category
-
-@admin.register(Dish)
-class DishAdmin(admin.ModelAdmin):
-    list_display = ('name', 'price', 'description')  # Поля, которые будут отображаться в списке
-    search_fields = ('name', 'description')  # Поиск по этим полям
-    list_filter = ('price',)  # Фильтрация по цене
-
-
+from .models import FoodItem
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'price', 'image')
-    search_fields = ('name',)
-    list_filter = ('price',)
+    list_display = ('name', 'price', 'image')  # Поля для отображения в списке
+    search_fields = ('name',)  # Поиск по имени
+    list_filter = ('price',)  # Фильтрация по цене
 
-# Правильная регистрация модели с классом администратора
-admin.site.register(Product, ProductAdmin)
-admin.site.register(Category) 
+admin.site.register(Product, ProductAdmin)  # Регистрация модели Product
+
+admin.site.register(FoodItem)
+
+

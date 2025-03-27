@@ -1,8 +1,15 @@
 from djoser.serializers import UserSerializer
-from users.models import User  # Убедись, что у тебя есть кастомная модель пользователя
-from rest_framework import serializers
 
-class CustomUserSerializer(UserSerializer):
-    class Meta(UserSerializer.Meta):
-        model = User
-        fields = "__all__"
+from rest_framework import serializers
+from .models import FoodItem
+
+
+
+
+class FoodItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FoodItem
+        fields = ['id', 'name', 'description', 'price', 'image']
+
+
+
