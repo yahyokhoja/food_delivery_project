@@ -54,6 +54,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+      "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
 ]
 
 
@@ -132,7 +134,8 @@ SIMPLE_JWT = {
 
 # Настройки CORS
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',  # Адрес фронтенда (React)
+    "http://localhost:3000",
+    "http://192.168.8.100:3000",
 ]
 
 # Django Rest Framework настройки

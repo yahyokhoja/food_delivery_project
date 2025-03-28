@@ -17,6 +17,8 @@ Including another URLconf
 # delivery/urls.py
 from django.contrib import admin
 from django.urls import path, include
+from users.views import register_user  # Импортируем представление
+
 
 def home(request):
     return HttpResponse("Добро пожаловать в Delivery!")
@@ -31,6 +33,7 @@ urlpatterns = [
      path('', home, name='home'),  # Главная страница
       path('users/', include('users.urls')),  # Подключаем маршруты приложения users
        path("api/", include("orders.urls")),
+        path("api/", include("users.urls")),  # <-- Без этого /api/register/ не будет работать
     
 ]
    

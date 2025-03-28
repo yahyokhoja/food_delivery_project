@@ -28,25 +28,15 @@ class CustomUserManager(BaseUserManager):
 
         return self.create_user(phone_number, password, **extra_fields)
 
+from django.contrib.auth.models import AbstractUser
+from django.db import models
 
-class CustomUser(AbstractBaseUser, PermissionsMixin):
-    """
-    Кастомная модель пользователя с номером телефона.
-    """
-    phone_number = models.CharField(max_length=15, unique=True)
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30)
-    email = models.EmailField(unique=True, null=True, blank=True)
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
+class CustomUser(AbstractUser):
+    username = models.CharField(max_length=150, unique=True, default='guest_user')  # Устанавливаем значение по умолчанию
+    phone_number = models.CharField(max_length=15, unique=True, null=False, blank=False)  # Исправленный отступ
 
-    objects = CustomUserManager()
 
-    USERNAME_FIELD = 'phone_number'  # Указываем поле для входа
-    REQUIRED_FIELDS = ['first_name', 'last_name', 'email']  # Обязательные поля для создания пользователя
 
-    def __str__(self):
-        return self.phone_number
     
 
 class FoodItem(models.Model):

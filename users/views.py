@@ -9,6 +9,42 @@ from .models import FoodItem
 from .serializers import FoodItemSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView 
+from django.contrib.auth.models import User
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from .models import CustomUser
+from .serializers import UserSerializer
+from django.contrib.auth.models import User
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework import status
+from django.contrib.auth import get_user_model
+
+User = get_user_model()  # Получаем твою кастомную модель CustomUser
+
+@api_view(["POST"])
+def register_user(request):
+    try:
+        username = request.data.get("username")
+        phone_number = request.data.get("phone_number")
+        password = request.data.get("password")
+
+        if not username or not phone_number or not password:
+            return Response({"message": "Все поля обязательны"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if User.objects.filter(username=username).exists():
+            return Response({"message": "Пользователь уже существует"}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.create_user(username=username, phone_number=phone_number, password=password)
+        return Response({"message": "Регистрация успешна"}, status=status.HTTP_201_CREATED)
+
+    except Exception as e:
+        return Response({"message": f"Ошибка сервера: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
 
 
 
