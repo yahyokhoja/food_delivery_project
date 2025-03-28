@@ -13,15 +13,21 @@ User = get_user_model()
 
 
 
+
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['phone_number', 'username', 'password']
     
     def create(self, validated_data):
-        username = validated_data.get('username')
-        return CustomUser.objects.create_user(**validated_data)
+        user = CustomUser.objects.create_user(**validated_data)
+        return user
 
+    def to_representation(self, instance):
+        """Отправляем URL для редиректа после регистрации"""
+        response = super().to_representation(instance)
+        response['redirect_url'] = '/account/dashboard/'  # URL личного кабинета
+        return response
 
 
 

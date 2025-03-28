@@ -48,11 +48,16 @@ def register_user(request):
         # Создание нового пользователя
         user = User.objects.create_user(username=username, phone_number=phone_number, password=password)
 
-        # В этой части вы можете возвращать данные пользователя или сообщение об успехе
-        return Response({"message": "Пользователь успешно зарегистрирован", "user_id": user.id}, status=status.HTTP_201_CREATED)
+        # Возвращаем сообщение и redirect_url для перенаправления в личный кабинет
+        return Response({
+            "message": "Пользователь успешно зарегистрирован",
+            "redirect_url": "/account/dashboard/",  # URL для личного кабинета
+            "user_id": user.id
+        }, status=status.HTTP_201_CREATED)
 
     except Exception as e:
         return Response({"message": f"Ошибка сервера: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 

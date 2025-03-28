@@ -1,4 +1,4 @@
-// src/App.js
+
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Menu from "./components/Menu"; 
@@ -8,8 +8,9 @@ import AboutPage from "./pages/AboutPage";
 import PostsPage from "./PostsPage";
 import CartPage from "./pages/CartPage";
 import FoodList from "./components/FoodList"; // Подключаем список еды
-import Login from "./components/Login"; 
+import Login from "./components/Login"; // Один импорт компонента Login
 import Register from "./components/Register";
+import Dashboard from './components/Dashboard'; // Добавьте правильный путь к компоненту Dashboard
 
 function App() {
   return (
@@ -24,12 +25,11 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/menu" element={<FoodList />} /> {/* Добавили страницу с едой */}
+        <Route path="/account/dashboard" element={<Dashboard />} />
       </Routes>
     </Router>
   );
 }
 
 export default App;
-
-
 
