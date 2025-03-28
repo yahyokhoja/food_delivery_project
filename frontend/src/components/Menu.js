@@ -1,4 +1,3 @@
-
 // src/components/Menu.js
 import React from "react";
 import { Navbar, Nav, Container, Button } from "react-bootstrap";
@@ -20,9 +19,12 @@ const Menu = () => {
           <Nav className="me-auto">
             <Nav.Link as={Link} to="/">Главная</Nav.Link>
             <Nav.Link as={Link} to="/about">О нас</Nav.Link>
-            <Nav.Link as={Link} to="/admin">Админка</Nav.Link>
+            
+
             {/* Ссылка на админку Django без перезагрузки */}
-            <Nav.Link onClick={handleAdminRedirect}>Админ Django</Nav.Link>
+            <Nav.Link onClick={handleAdminRedirect}>Админка</Nav.Link>
+
+            {/* Ссылка на меню */}
             {/* Добавляем ссылки на регистрацию и авторизацию */}
             <Nav.Link as={Link} to="/login">Авторизация</Nav.Link>
             <Nav.Link as={Link} to="/register">Регистрация</Nav.Link>

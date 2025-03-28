@@ -1,32 +1,23 @@
-# users/views.py
+
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponse
-from .forms import UserSettingsForm, PhoneAuthenticationForm  # Импортируем PhoneAuthenticationForm
-from .models import CustomUser
-from .models import FoodItem
-from .serializers import FoodItemSerializer
+from .forms import UserSettingsForm, PhoneAuthenticationForm
+from .models import CustomUser, FoodItem
+from .serializers import CustomUserSerializer, FoodItemSerializer
 from rest_framework.response import Response
-from rest_framework.views import APIView 
-from django.contrib.auth.models import User
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status, viewsets
 from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import status
-from .models import CustomUser
-from .serializers import CustomUserSerializer
 
-from django.contrib.auth.models import User
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from rest_framework import status
 from django.contrib.auth import get_user_model
-from django.contrib.auth import authenticate, login
 
-User = get_user_model()  # Получаем вашу кастомную модель
+# Получаем вашу кастомную модель пользователя
+User = get_user_model()
 
-# users/views.py
-
+# Регистрация нового пользователя
 @api_view(["POST"])
 def register_user(request):
     try:
@@ -58,20 +49,15 @@ def register_user(request):
     except Exception as e:
         return Response({"message": f"Ошибка сервера: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-
-
+# Авторизация через номер телефона
 def phone_login(request):
-    """
-    Авторизация через номер телефона.
-    """
     if request.method == 'POST':
         form = PhoneAuthenticationForm(request, data=request.POST)
         if form.is_valid():
             phone_number = form.cleaned_data.get('phone_number')
-            password = form.cleaned_data.get('password')  # Предположим, что у вас есть поле пароля в форме
+            password = form.cleaned_data.get('password')
 
-            # Явно указываем backend для аутентификации
+            # Используем кастомный бэкенд для аутентификации
             user = authenticate(
                 request,
                 phone_number=phone_number,
@@ -89,26 +75,15 @@ def phone_login(request):
 
     return render(request, 'users/login.html', {'form': form})
 
-
-
+# Личный кабинет пользователя
 @login_required
 def user_dashboard(request):
-    """
-    Личный кабинет пользователя, где отображаются его данные и история заказов.
-    """
     user = request.user
-    # Здесь можно добавить логику для отображения истории заказов, если такая есть
     return render(request, 'users/dashboard.html', {'user': user})
 
-
-
-
-
+# Страница настроек пользователя
 @login_required
 def user_settings(request):
-    """
-    Страница настроек пользователя, где он может изменить свой профиль, например, номер телефона.
-    """
     user = request.user
     if request.method == 'POST':
         form = UserSettingsForm(request.POST, instance=user)
@@ -120,9 +95,16 @@ def user_settings(request):
 
     return render(request, 'users/settings.html', {'form': form})
 
-
+# Список блюд
 class FoodItemListView(APIView):
     def get(self, request):
         food_items = FoodItem.objects.all()
         serializer = FoodItemSerializer(food_items, many=True)
         return Response(serializer.data)
+
+# Вьюсет для пользователей
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer  # Используем правильный сериализатор
+    permission_classes = [IsAuthenticated]  # Только авторизованные пользователи
+

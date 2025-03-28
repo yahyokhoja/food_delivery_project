@@ -1,4 +1,3 @@
-
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Menu from "./components/Menu"; 
@@ -11,6 +10,7 @@ import FoodList from "./components/FoodList"; // Подключаем списо
 import Login from "./components/Login"; // Один импорт компонента Login
 import Register from "./components/Register";
 import Dashboard from './components/Dashboard'; // Добавьте правильный путь к компоненту Dashboard
+import AdminDashboard from './components/AdminDashboard';
 
 function App() {
   return (
@@ -26,10 +26,10 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/menu" element={<FoodList />} /> {/* Добавили страницу с едой */}
         <Route path="/account/dashboard" element={<Dashboard />} />
+        <Route path="/admin" element={<AdminDashboard />} /> {/* Страница админки */}
       </Routes>
     </Router>
   );
 }
 
 export default App;
-
