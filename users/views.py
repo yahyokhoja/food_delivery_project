@@ -14,14 +14,18 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .models import CustomUser
-from .serializers import UserSerializer
+from .serializers import CustomUserSerializer
+
 from django.contrib.auth.models import User
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate, login
 
-User = get_user_model()  # Получаем твою кастомную модель CustomUser
+User = get_user_model()  # Получаем вашу кастомную модель
+
+# users/views.py
 
 @api_view(["POST"])
 def register_user(request):
@@ -33,18 +37,22 @@ def register_user(request):
         if not username or not phone_number or not password:
             return Response({"message": "Все поля обязательны"}, status=status.HTTP_400_BAD_REQUEST)
 
-        if User.objects.filter(username=username).exists():
-            return Response({"message": "Пользователь уже существует"}, status=status.HTTP_400_BAD_REQUEST)
+        # Проверка на существующего пользователя с таким номером телефона
+        if User.objects.filter(phone_number=phone_number).exists():
+            return Response({"message": "Пользователь с таким номером телефона уже существует"}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Проверка на существующего пользователя с таким именем
+        if User.objects.filter(username=username).exists():
+            return Response({"message": "Пользователь с таким именем уже существует"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Создание нового пользователя
         user = User.objects.create_user(username=username, phone_number=phone_number, password=password)
-        return Response({"message": "Регистрация успешна"}, status=status.HTTP_201_CREATED)
+
+        # В этой части вы можете возвращать данные пользователя или сообщение об успехе
+        return Response({"message": "Пользователь успешно зарегистрирован", "user_id": user.id}, status=status.HTTP_201_CREATED)
 
     except Exception as e:
         return Response({"message": f"Ошибка сервера: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
-
 
 
 
@@ -55,19 +63,28 @@ def phone_login(request):
     if request.method == 'POST':
         form = PhoneAuthenticationForm(request, data=request.POST)
         if form.is_valid():
-            # Получаем номер телефона из формы
             phone_number = form.cleaned_data.get('phone_number')
-            # Пробуем найти пользователя с этим номером телефона
-            user = authenticate(request, phone_number=phone_number)
+            password = form.cleaned_data.get('password')  # Предположим, что у вас есть поле пароля в форме
+
+            # Явно указываем backend для аутентификации
+            user = authenticate(
+                request,
+                phone_number=phone_number,
+                password=password,
+                backend='users.auth_backends.PhoneAuthenticationBackend'  # Указываем ваш кастомный бэкенд
+            )
+            
             if user is not None:
                 login(request, user)
                 return redirect('users:dashboard')  # Перенаправляем в личный кабинет
             else:
-                return HttpResponse('Неверный номер телефона')
+                return HttpResponse('Неверный номер телефона или пароль')
     else:
         form = PhoneAuthenticationForm()
 
     return render(request, 'users/login.html', {'form': form})
+
+
 
 @login_required
 def user_dashboard(request):
@@ -77,6 +94,10 @@ def user_dashboard(request):
     user = request.user
     # Здесь можно добавить логику для отображения истории заказов, если такая есть
     return render(request, 'users/dashboard.html', {'user': user})
+
+
+
+
 
 @login_required
 def user_settings(request):

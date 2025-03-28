@@ -149,18 +149,25 @@ REST_FRAMEWORK = {
 }
 
 # Настройки для DJOSER (если используется для работы с пользователями)
+# settings.py
+# settings.py
+
 DJOSER = {
     "USER_ID_FIELD": "id",
-    "LOGIN_FIELD": "email",  # если регистрация по email
-    "SEND_ACTIVATION_EMAIL": False,
+    "LOGIN_FIELD": "email",  # Или 'phone_number', если используете телефон
+    "SEND_ACTIVATION_EMAIL": False,  # Если не нужно отправлять активационное письмо
     "SERIALIZERS": {
-        "user_create": "users.serializers.CustomUserSerializer",  # свой сериализатор (если кастомная модель)
-        "user": "users.serializers.CustomUserSerializer",
+        "user_create": "users.serializers.CustomUserSerializer",  # Сериализатор для создания пользователя
+        "user": "users.serializers.CustomUserSerializer",  # Сериализатор для получения данных пользователя
     },
 }
+
+
+
 AUTHENTICATION_BACKENDS = [
     'users.auth_backends.PhoneAuthenticationBackend',  # Указываем кастомный бэкенд
-    'django.contrib.auth.backends.ModelBackend',  # Стандартный бэкенд для администратора
+    
+    
 ]
 
 
@@ -172,4 +179,6 @@ AUTH_USER_MODEL = 'users.CustomUser'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Заголовки админки
+
+LOGIN_URL = '/users/login/'  # Указываем свой путь для страницы входа
 

@@ -1,39 +1,28 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 from django.db import models
-
-
+from django.contrib.auth.models import AbstractUser
 
 class CustomUserManager(BaseUserManager):
-    """
-    Менеджер для кастомной модели пользователя.
-    """
-    def create_user(self, phone_number, password=None, **extra_fields):
-        """
-        Создает и возвращает пользователя с номером телефона.
-        """
-        if not phone_number:
-            raise ValueError('Пользователь должен иметь номер телефона')
+    def create_user(self, phone_number, username=None, **extra_fields):
+        # Убедитесь, что 'username' передается отдельно, если оно есть
+        if username:
+            extra_fields['username'] = username
         user = self.model(phone_number=phone_number, **extra_fields)
-        user.set_password(password)
+        user.set_password(extra_fields.get('password'))
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, phone_number, password=None, **extra_fields):
-        """
-        Создает и возвращает суперпользователя с номером телефона.
-        """
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
+   
 
-        return self.create_user(phone_number, password, **extra_fields)
 
-from django.contrib.auth.models import AbstractUser
-from django.db import models
+
 
 class CustomUser(AbstractUser):
-    username = models.CharField(max_length=150, unique=True, default='guest_user')  # Устанавливаем значение по умолчанию
-    phone_number = models.CharField(max_length=15, unique=True, null=False, blank=False)  # Исправленный отступ
+    username = models.CharField(max_length=150, unique=True, default='guest_user')  
+    phone_number = models.CharField(max_length=15, unique=True)  
+
+    objects = CustomUserManager()  # Добавляем менеджер
 
 
 
