@@ -48,14 +48,12 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',  # Оставьте только одну строку
+    'django.middleware.common.CommonMiddleware',  # Убедитесь, что только одна строка с CommonMiddleware
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-      "corsheaders.middleware.CorsMiddleware",
-    "django.middleware.common.CommonMiddleware",
+    'corsheaders.middleware.CorsMiddleware',  # Убедитесь, что только одна строка с CorsMiddleware
 ]
 
 
@@ -167,12 +165,17 @@ DJOSER = {
 AUTHENTICATION_BACKENDS = [
     'users.auth_backends.PhoneAuthenticationBackend',  # Указываем кастомный бэкенд
     
-    
+   
+    'django.contrib.auth.backends.ModelBackend',  # Это стандартный бэкенд Django для аутентификации через username
 ]
+
+    
+
 
 
 # Настройки для кастомной модели пользователя
-AUTH_USER_MODEL = 'users.CustomUser'
+
+AUTH_USER_MODEL = 'users.CustomUser' 
 
 
 # Default primary key field type
