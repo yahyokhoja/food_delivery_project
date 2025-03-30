@@ -6,6 +6,13 @@ from rest_framework import status
 from .models import CustomUser
 from rest_framework.decorators import api_view, permission_classes
 
+from rest_framework_simplejwt.tokens import RefreshToken
+
+
+from django.contrib.auth import authenticate
+from django.conf import settings
+
+
 
 class RegisterUserView(APIView):
     permission_classes = [AllowAny]
@@ -31,35 +38,38 @@ class RegisterUserView(APIView):
                 'phone_number': user.phone_number
             }
         }, status=status.HTTP_201_CREATED)
-@api_view(['POST'])
+    
+@api_view(["GET"])
+def user_profile(request):
+    user = request.user
+    return Response({"id": user.id, "phone_number": user.phone_number})
+
+
+
+
+@api_view(["POST"])
 def phone_login(request):
-    phone_number_or_name = request.data.get('phone_number_or_name')
-    password = request.data.get('password')
+    phone_number = request.data.get("phone_number")
+    password = request.data.get("password")
 
-    if not phone_number_or_name or not password:
-        return Response({'detail': 'Введите номер телефона или имя и пароль.'}, status=status.HTTP_400_BAD_REQUEST)
+    user = authenticate(phone_number=phone_number, password=password)
 
-    # Проверяем, является ли введенное значение номером телефона
-    user = CustomUser.objects.filter(phone_number=phone_number_or_name).first()
-
-    # Если это не номер телефона, проверяем по имени
     if not user:
-        user = CustomUser.objects.filter(first_name=phone_number_or_name).first()
-
-    if not user or not user.check_password(password):
-        return Response({'detail': 'Неверные учетные данные.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "Неверные учетные данные"}, status=400)
 
     refresh = RefreshToken.for_user(user)
-    return Response({
-        'access': str(refresh.access_token),
-        'refresh': str(refresh),
-        'user': {
-            'id': user.id,
-            'phone_number': user.phone_number
-        }
-    }, status=status.HTTP_200_OK)
+    response = Response({"message": "Успешный вход"})
 
+    # Сохраняем токены в куках
+    response.set_cookie(
+        key=settings.SIMPLE_JWT["AUTH_COOKIE"],
+        value=str(refresh.access_token),
+        httponly=settings.SIMPLE_JWT["AUTH_COOKIE_HTTP_ONLY"],
+        secure=settings.SIMPLE_JWT["AUTH_COOKIE_SECURE"],
+        samesite=settings.SIMPLE_JWT["AUTH_COOKIE_SAMESITE"],
+    )
 
+    return response
 
 
 @api_view(['GET'])
@@ -130,6 +140,47 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 class CustomTokenObtainPairView(TokenObtainPairView):
     # Вы можете здесь добавить свою логику
     pass
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
+from .models import CustomUser
+from rest_framework import status
+
+@api_view(["POST"])
+def phone_login(request):
+    phone_number = request.data.get("phone_number")
+    password = request.data.get("password")
+
+    if not phone_number or not password:
+        return Response({"detail": "Введите номер телефона и пароль."}, status=status.HTTP_400_BAD_REQUEST)
+
+    user = authenticate(phone_number=phone_number, password=password)
+    if not user:
+        return Response({"detail": "Неверные учетные данные."}, status=status.HTTP_400_BAD_REQUEST)
+
+    refresh = RefreshToken.for_user(user)
+    return Response({
+        "access": str(refresh.access_token),
+        "refresh": str(refresh),
+        "user": {
+            "id": user.id,
+            "phone_number": user.phone_number
+        }
+    }, status=status.HTTP_200_OK)
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def user_profile(request):
+    user = request.user
+    return Response({
+        "id": user.id,
+        "phone_number": user.phone_number
+    })
+
+
 
 
  

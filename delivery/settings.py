@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 from datetime import timedelta
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -55,8 +56,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',  # Убедитесь, что только одна строка с CorsMiddleware
 ]
+MIDDLEWARE.insert(1, "corsheaders.middleware.CorsMiddleware")
 
-
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'delivery.urls'
 
@@ -125,11 +127,16 @@ STATIC_ROOT = BASE_DIR / "staticfiles"  # Путь, где соберутся в
 
 # JWT настройки
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": True,
     "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_COOKIE": "access_token",  # Имя куки для хранения токена доступа
+    "AUTH_COOKIE_HTTP_ONLY": True,  # Доступно только через HTTP (JavaScript не может читать)
+    "AUTH_COOKIE_SECURE": False,  # Установите True для HTTPS
+    "AUTH_COOKIE_SAMESITE": "Lax",  # Контроль отправки кук
 }
-
 # Настройки CORS
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",

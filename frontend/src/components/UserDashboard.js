@@ -1,63 +1,42 @@
-// src/components/UserDashboard.js
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 const UserDashboard = () => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();  // Используем useNavigate вместо Redirect
+  const [userData, setUserData] = useState(null);
+  const [error, setError] = useState("");
 
-  // Получение данных пользователя из API
   useEffect(() => {
     const fetchUserData = async () => {
-      const token = localStorage.getItem('access_token');
-      if (!token) {
-        navigate('/login'); // Перенаправление на страницу входа
-        return;
-      }
-
       try {
-        const response = await axios.get('http://localhost:8000/users/profile/', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const token = localStorage.getItem("access_token");
+
+        const response = await axios.get("http://localhost:8000/users/profile/", {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
         });
-        setUser(response.data);
-        setLoading(false);
+
+        setUserData(response.data);
       } catch (error) {
-        setError('Ошибка загрузки данных');
-        setLoading(false);
+        setError("Ошибка при получении профиля");
+        console.error("Ошибка:", error);
       }
     };
 
     fetchUserData();
-  }, [navigate]);
-
-  // Если данные пользователя еще загружаются
-  if (loading) {
-    return <div>Загрузка...</div>;
-  }
-
-  // Если произошла ошибка при загрузке
-  if (error) {
-    return <div>{error}</div>;
-  }
-
-  // Функция для выхода из аккаунта
-  const handleLogout = () => {
-    localStorage.removeItem('access_token');  // Удаляем токен
-    navigate('/login');  // Перенаправляем на страницу входа
-  };
+  }, []);
 
   return (
-    <div className="user-dashboard">
-      <h1>Добро пожаловать, {user.username}!</h1>
-      <p>Номер телефона: {user.phone_number}</p>
-      {/* Здесь можно добавить другие данные пользователя, например, историю заказов */}
-      <button onClick={() => navigate("/settings")}>Настройки профиля</button>
-      <button onClick={handleLogout}>Выйти</button>
+    <div>
+      <h2>Личный кабинет</h2>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      {userData ? (
+        <div>
+          <p>ID: {userData.id}</p>
+          <p>Телефон: {userData.phone_number}</p>
+        </div>
+      ) : (
+        <p>Загрузка...</p>
+      )}
     </div>
   );
 };
