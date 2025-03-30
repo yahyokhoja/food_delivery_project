@@ -1,23 +1,16 @@
 # users/api_urls.py
+from django.urls import path
+from . import views
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from .views import CustomTokenObtainPairView
 
-from django.urls import path,include
-from djoser.views import UserViewSet
-from rest_framework.authtoken.views import obtain_auth_token  # Для получения токена
-from rest_framework.routers import DefaultRouter
-from django.urls import path, include
-from rest_framework_simplejwt import views as jwt_views
-router = DefaultRouter()
-router.register(r'users', UserViewSet)
-
+app_name = 'users_api'  # Уникальное пространство имен для API
 
 urlpatterns = [
-    path('register/', UserViewSet.as_view({'post': 'create'}), name='user-register'),
-    path('login/', obtain_auth_token, name='login'),  # Логин
-        # Путь для получения JWT токенов
-    path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    # Путь для обновления JWT токенов
-    path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
-     path('api/', include(router.urls)),
-]
+    path('register/', views.register_user, name='register_api'),
 
+    path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),  # Оставляем этот для стандартного токена
+    path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path('custom-token/', CustomTokenObtainPairView.as_view(), name='custom_token_obtain_pair'),  # Изменили имя маршрута
+]
 

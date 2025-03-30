@@ -171,7 +171,7 @@ AUTHENTICATION_BACKENDS = [
 
     
 
-
+CSRF_COOKIE_SECURE = False
 
 # Настройки для кастомной модели пользователя
 
@@ -183,5 +183,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Заголовки админки
 
-LOGIN_URL = '/users/login/'  # Указываем свой путь для страницы входа
+LOGIN_URL = '/api/users/login/'  # Указываем свой путь для страницы входа
 

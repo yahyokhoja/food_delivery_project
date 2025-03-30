@@ -10,11 +10,16 @@ class FoodItemAdmin(admin.ModelAdmin):
     list_filter = ['created_at']
 
 # Зарегистрируйте модель пользователя
-@admin.register(CustomUser)
+
 class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ('id', 'username', 'phone_number', 'email', 'is_staff', 'is_superuser', 'is_active')
-    search_fields = ('username', 'phone_number', 'email')  # Добавьте поля для поиска
-    list_filter = ('is_staff', 'is_superuser', 'is_active')  # Добавьте фильтрацию по этим полям
+    # Используйте 'phone_number' вместо 'username'
+    list_display = ('phone_number', 'first_name', 'last_name', 'email', 'is_active', 'is_staff')
+
+    # Добавьте фильтрацию и поиск по нужным полям
+    search_fields = ('phone_number', 'email')
+    list_filter = ('is_active', 'is_staff')
+
+admin.site.register(CustomUser, CustomUserAdmin)
 
 
 

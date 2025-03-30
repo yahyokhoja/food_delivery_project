@@ -1,26 +1,25 @@
-# users/serializers.py
-from djoser.serializers import UserCreateSerializer  # Импортируем сериализатор для создания пользователя
+
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import FoodItem  # Импортируем модель FoodItem, если она у вас есть
+from .models import FoodItem
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
-from rest_framework import serializers
-from .models import CustomUser
+
+
 
 User = get_user_model()
 
-
-
-
-
+# Сериализатор для создания пользователя
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser
-        fields = ['phone_number', 'username', 'password']
-    
+        model = User
+        fields = ['phone_number', 'password']  # Убираем 'username' и оставляем только 'phone_number' и 'password'
+        extra_kwargs = {'password': {'write_only': True}}  # Убедимся, что пароль не будет сериализован в ответе
+
     def create(self, validated_data):
-        user = CustomUser.objects.create_user(**validated_data)
+        # Создание пользователя с хешированием пароля
+        user = User.objects.create_user(**validated_data)
         return user
 
     def to_representation(self, instance):
@@ -30,13 +29,18 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return response
 
 
-
-
-
+# Сериализатор для модели FoodItem (если она у вас есть)
 class FoodItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = FoodItem
         fields = ['id', 'name', 'description', 'price', 'image']
 
 
-
+# Кастомный сериализатор для получения JWT токенов
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        # Получаем токен и добавляем дополнительную информацию
+        token = super().get_token(user)
+        token['phone_number'] = user.phone_number  # Вместо username используем phone_number
+        return token

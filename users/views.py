@@ -1,110 +1,119 @@
-
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login
-from django.http import HttpResponse
-from .forms import UserSettingsForm, PhoneAuthenticationForm
-from .models import CustomUser, FoodItem
-from .serializers import CustomUserSerializer, FoodItemSerializer
-from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import status, viewsets
-from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import status
+from .models import CustomUser
+from rest_framework.decorators import api_view, permission_classes
 
-from django.contrib.auth import get_user_model
 
-# Получаем вашу кастомную модель пользователя
-User = get_user_model()
+class RegisterUserView(APIView):
+    permission_classes = [AllowAny]
 
-# Регистрация нового пользователя
-@api_view(["POST"])
-def register_user(request):
-    try:
-        username = request.data.get("username")
-        phone_number = request.data.get("phone_number")
-        password = request.data.get("password")
+    def post(self, request):
+        phone_number = request.data.get('phone_number')
+        password = request.data.get('password')
 
-        if not username or not phone_number or not password:
-            return Response({"message": "Все поля обязательны"}, status=status.HTTP_400_BAD_REQUEST)
+        # Проверка, если пользователь с таким номером уже существует
+        if CustomUser.objects.filter(phone_number=phone_number).exists():
+            return Response({'detail': 'Пользователь с таким номером уже существует.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Проверка на существующего пользователя с таким номером телефона
-        if User.objects.filter(phone_number=phone_number).exists():
-            return Response({"message": "Пользователь с таким номером телефона уже существует"}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Проверка на существующего пользователя с таким именем
-        if User.objects.filter(username=username).exists():
-            return Response({"message": "Пользователь с таким именем уже существует"}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Создание нового пользователя
-        user = User.objects.create_user(username=username, phone_number=phone_number, password=password)
-
-        # Возвращаем сообщение и redirect_url для перенаправления в личный кабинет
+        # Создаем нового пользователя
+        user = CustomUser.objects.create_user(phone_number=phone_number, password=password)
+        
+        # Генерация токенов
+        refresh = RefreshToken.for_user(user)
         return Response({
-            "message": "Пользователь успешно зарегистрирован",
-            "redirect_url": "/account/dashboard/",  # URL для личного кабинета
-            "user_id": user.id
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
+            'user': {
+                'id': user.id,
+                'phone_number': user.phone_number
+            }
         }, status=status.HTTP_201_CREATED)
 
-    except Exception as e:
-        return Response({"message": f"Ошибка сервера: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# Авторизация через номер телефона
+@api_view(['POST'])
 def phone_login(request):
-    if request.method == 'POST':
-        form = PhoneAuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            phone_number = form.cleaned_data.get('phone_number')
-            password = form.cleaned_data.get('password')
+    phone_number = request.data.get('phone_number')
+    password = request.data.get('password')
 
-            # Используем кастомный бэкенд для аутентификации
-            user = authenticate(
-                request,
-                phone_number=phone_number,
-                password=password,
-                backend='users.auth_backends.PhoneAuthenticationBackend'  # Указываем ваш кастомный бэкенд
-            )
-            
-            if user is not None:
-                login(request, user)
-                return redirect('users:dashboard')  # Перенаправляем в личный кабинет
-            else:
-                return HttpResponse('Неверный номер телефона или пароль')
-    else:
-        form = PhoneAuthenticationForm()
+    if not phone_number or not password:
+        return Response({'detail': 'Введите номер телефона и пароль.'}, status=status.HTTP_400_BAD_REQUEST)
 
-    return render(request, 'users/login.html', {'form': form})
+    user = CustomUser.objects.filter(phone_number=phone_number).first()
+    if not user or not user.check_password(password):
+        return Response({'detail': 'Неверные учетные данные.'}, status=status.HTTP_400_BAD_REQUEST)
 
-# Личный кабинет пользователя
-@login_required
+    refresh = RefreshToken.for_user(user)
+    return Response({
+        'access': str(refresh.access_token),
+        'refresh': str(refresh),
+        'user': {
+            'id': user.id,
+            'phone_number': user.phone_number
+        }
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def user_dashboard(request):
     user = request.user
-    return render(request, 'users/dashboard.html', {'user': user})
+    return Response({
+        'message': 'Добро пожаловать в личный кабинет!',
+        'user': {
+            'id': user.id,
+            'phone_number': user.phone_number,
+            'name': user.first_name
+        }
+    })
 
-# Страница настроек пользователя
-@login_required
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
 def user_settings(request):
-    user = request.user
-    if request.method == 'POST':
-        form = UserSettingsForm(request.POST, instance=user)
-        if form.is_valid():
-            form.save()
-            return redirect('users:dashboard')  # Перенаправляем обратно в личный кабинет
-    else:
-        form = UserSettingsForm(instance=user)
+    if request.method == 'GET':
+        return Response({'message': 'Настройки пользователя', 'settings': {}})
+    
+    elif request.method == 'POST':
+        # Здесь можно обработать обновление настроек пользователя
+        return Response({'message': 'Настройки обновлены!'})
+    
 
-    return render(request, 'users/settings.html', {'form': form})
+@api_view(['POST'])
+def register_user(request):
+    phone_number = request.data.get('phone_number')
+    password = request.data.get('password')
 
-# Список блюд
-class FoodItemListView(APIView):
-    def get(self, request):
-        food_items = FoodItem.objects.all()
-        serializer = FoodItemSerializer(food_items, many=True)
-        return Response(serializer.data)
+    # Проверка, если пользователь с таким номером уже существует
+    if CustomUser.objects.filter(phone_number=phone_number).exists():
+        return Response({'detail': 'Пользователь с таким номером уже существует.'}, status=status.HTTP_400_BAD_REQUEST)
 
-# Вьюсет для пользователей
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = CustomUser.objects.all()
-    serializer_class = CustomUserSerializer  # Используем правильный сериализатор
-    permission_classes = [IsAuthenticated]  # Только авторизованные пользователи
+    # Создаем нового пользователя
+    user = CustomUser.objects.create_user(phone_number=phone_number, password=password)
+    
+    # Генерация токенов
+    refresh = RefreshToken.for_user(user)
+    return Response({
+        'access': str(refresh.access_token),
+        'refresh': str(refresh),
+        'user': {
+            'id': user.id,
+            'phone_number': user.phone_number
+        }
+    }, status=status.HTTP_201_CREATED)   
+
+
+# users/views.py
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+# Создаем кастомизированный класс, если нужно добавить логику
+class CustomTokenObtainPairView(TokenObtainPairView):
+    # Вы можете здесь добавить свою логику
+    pass
+
+
+ 
+
 

@@ -1,4 +1,3 @@
-# delivery/urls.py
 from django.contrib import admin
 from django.urls import path, include
 from django.http import HttpResponse
@@ -11,16 +10,11 @@ urlpatterns = [
     path('orders/', include('orders.urls')),  # Путь к приложению orders
     path('', home, name='home'),  # Главная страница
 
-    # Подключаем маршруты для пользователей (не API)
+    # Подключаем маршруты для пользователей
     path('users/', include('users.urls', namespace='users')),  # Обычные маршруты для пользователей
 
-    # Подключаем маршруты для API пользователей
-    path('api/', include('users.api_urls')),  # <-- Проверьте, что этот маршрут есть!
+    # Подключаем API маршруты для пользователей с отдельным пространством имен
+    path('api/', include('users.api_urls', namespace='users_api')),  # API для пользователей
+    
 
-
-    # Подключаем маршруты для API заказов
-    path('api/orders/', include('orders.urls')),  # Путь для API заказов
-
-   
 ]
-

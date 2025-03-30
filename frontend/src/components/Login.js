@@ -1,17 +1,29 @@
+
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneNumberOrName, setPhoneNumberOrName] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogin = async (event) => {
     event.preventDefault();
+    setError('');
+    setLoading(true);
+
+    if (!phoneNumberOrName.trim() || !password.trim()) {
+      setError('Пожалуйста, заполните все поля.');
+      setLoading(false);
+      return;
+    }
 
     try {
-      const response = await axios.post('http://localhost:8000/users/api/token/', {
-        phone_number: phoneNumber,
+      const response = await axios.post('http://localhost:8000/users/login/', {
+        phone_number_or_name: phoneNumberOrName,
         password: password,
       });
 
@@ -19,43 +31,73 @@ const Login = () => {
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
 
-      console.log('Token:', response.data.access);
+      console.log('Успешный вход. Токен:', response.data.access);
 
-      // Перенаправление после успешного логина (например, на dashboard)
-      // history.push('/dashboard');
+      // Перенаправление в личный кабинет
+      navigate('/dashboard');
     } catch (error) {
-      setError('Ошибка при входе');
-      console.error('Ошибка при входе:', error.response?.data);
+      if (error.response) {
+        setError(error.response.data.detail || 'Ошибка при входе. Проверьте введенные данные.');
+      } else if (error.request) {
+        setError('Ошибка сети. Проверьте подключение к интернету.');
+      } else {
+        setError('Произошла неизвестная ошибка.');
+      }
+      console.error('Ошибка при входе:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div>
-      <h2>Login</h2>
+      <h2>Вход</h2>
       <form onSubmit={handleLogin}>
         <div>
-          <label htmlFor="phone_number">Phone Number</label>
+          <label htmlFor="phone_number_or_name">Телефон или Имя</label>
           <input
             type="text"
-            id="phone_number"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
+            id="phone_number_or_name"
+            value={phoneNumberOrName}
+            onChange={(e) => setPhoneNumberOrName(e.target.value)}
+            required
           />
         </div>
         <div>
-          <label htmlFor="password">Password</label>
+          <label htmlFor="password">Пароль</label>
           <input
             type="password"
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
         </div>
-        {error && <p>{error}</p>}
-        <button type="submit">Login</button>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+        <button type="submit" disabled={loading}>
+          {loading ? 'Вход...' : 'Войти'}
+        </button>
       </form>
     </div>
   );
 };
 
+
+
+const loginUser = async (phoneNumber, password) => {
+  try {
+    const response = await axios.post('http://localhost:8000/api/login/', {
+      phone_number: phoneNumber,
+      password: password,
+    });
+    console.log('Login successful:', response.data);
+  } catch (error) {
+    console.error('Ошибка при входе:', error.response ? error.response.data : error.message);
+  }
+};
+
+
+
+
 export default Login;
+

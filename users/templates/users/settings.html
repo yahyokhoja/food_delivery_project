@@ -5,8 +5,8 @@
   <h2>Настройки профиля</h2>
   <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Сохранить</button>
+    {{ form.as_p }}  <!-- Отображаем форму -->
+    <button type="submit">Сохранить изменения</button>
   </form>
   <p><a href="{% url 'users:dashboard' %}">Назад в личный кабинет</a></p>
 {% endblock %}
