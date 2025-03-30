@@ -110,6 +110,18 @@ def register_user(request):
         }
     }, status=status.HTTP_201_CREATED)   
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_profile(request):
+    user = request.user
+    return Response({
+        'id': user.id,
+        'phone_number': user.phone_number,
+        'name': user.first_name,
+        # другие данные пользователя
+    })
+
+
 
 # users/views.py
 from rest_framework_simplejwt.views import TokenObtainPairView
