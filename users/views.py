@@ -31,17 +31,21 @@ class RegisterUserView(APIView):
                 'phone_number': user.phone_number
             }
         }, status=status.HTTP_201_CREATED)
-
-
 @api_view(['POST'])
 def phone_login(request):
-    phone_number = request.data.get('phone_number')
+    phone_number_or_name = request.data.get('phone_number_or_name')
     password = request.data.get('password')
 
-    if not phone_number or not password:
-        return Response({'detail': 'Введите номер телефона и пароль.'}, status=status.HTTP_400_BAD_REQUEST)
+    if not phone_number_or_name or not password:
+        return Response({'detail': 'Введите номер телефона или имя и пароль.'}, status=status.HTTP_400_BAD_REQUEST)
 
-    user = CustomUser.objects.filter(phone_number=phone_number).first()
+    # Проверяем, является ли введенное значение номером телефона
+    user = CustomUser.objects.filter(phone_number=phone_number_or_name).first()
+
+    # Если это не номер телефона, проверяем по имени
+    if not user:
+        user = CustomUser.objects.filter(first_name=phone_number_or_name).first()
+
     if not user or not user.check_password(password):
         return Response({'detail': 'Неверные учетные данные.'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -54,6 +58,8 @@ def phone_login(request):
             'phone_number': user.phone_number
         }
     }, status=status.HTTP_200_OK)
+
+
 
 
 @api_view(['GET'])

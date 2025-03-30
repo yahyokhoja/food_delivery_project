@@ -82,22 +82,4 @@ const Login = () => {
   );
 };
 
-
-
-const loginUser = async (phoneNumber, password) => {
-  try {
-    const response = await axios.post('http://localhost:8000/api/login/', {
-      phone_number: phoneNumber,
-      password: password,
-    });
-    console.log('Login successful:', response.data);
-  } catch (error) {
-    console.error('Ошибка при входе:', error.response ? error.response.data : error.message);
-  }
-};
-
-
-
-
 export default Login;
-
