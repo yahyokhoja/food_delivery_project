@@ -133,6 +133,7 @@ def user_profile(request):
 
 
 
+
 # users/views.py
 from rest_framework_simplejwt.views import TokenObtainPairView
 
@@ -145,9 +146,13 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import authenticate
+
 from .models import CustomUser
 from rest_framework import status
+from django.contrib.auth import authenticate, login
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
 
 @api_view(["POST"])
 def phone_login(request):
@@ -182,6 +187,25 @@ def user_profile(request):
 
 
 
+@csrf_exempt
+def login_view(request):
+    if request.method == "POST":
+        phone_number = request.POST.get("phone_number")
+        user = authenticate(request, phone_number=phone_number)
+        if user:
+            login(request, user)
+            response = JsonResponse({"message": "Успешный вход"})
+            response.set_cookie(
+                key="sessionid", 
+                value=request.session.session_key, 
+                max_age=60 * 60 * 24 * 7,  # 7 дней
+                httponly=True, 
+                secure=True, 
+                samesite="Lax"
+            )
+            return response
+        return JsonResponse({"error": "Неверный номер телефона"}, status=400)
+    return JsonResponse({"error": "Метод не поддерживается"}, status=405)
 
  
 

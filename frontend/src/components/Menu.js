@@ -1,6 +1,6 @@
 // src/components/Menu.js
 import React from "react";
-import { Navbar, Nav, Container, Button } from "react-bootstrap";
+import { Navbar, Nav, Container } from "react-bootstrap";
 import { Link } from "react-router-dom"; // Импортируем Link для навигации
 import "./Menu.css";
 
@@ -30,13 +30,13 @@ const Menu = () => {
             <Nav.Link as={Link} to="/login">Авторизация</Nav.Link>
             <Nav.Link as={Link} to="/register">Регистрация</Nav.Link>
           </Nav>
-
-          {/* Ссылка на корзину */}
-          <Button variant="outline-light" as={Link} to="/cart">🛒 Корзина</Button> 
         </Navbar.Collapse>
       </Container>
     </Navbar>
   );
 };
+
+
+
 
 export default Menu;

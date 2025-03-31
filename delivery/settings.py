@@ -176,7 +176,11 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Это стандартный бэкенд Django для аутентификации через username
 ]
 
-    
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # 7 дней
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = True  # Только по HTTPS
+SESSION_COOKIE_SAMESITE = "Lax"    
 
 CSRF_COOKIE_SECURE = False
 
