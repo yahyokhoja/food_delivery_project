@@ -1,9 +1,8 @@
-
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const Login = () => {
+const Login = ({ setIsAuthenticated }) => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -27,22 +26,14 @@ const Login = () => {
         password: password,
       });
 
-      // Сохранение токенов
       localStorage.setItem("access_token", response.data.access);
       localStorage.setItem("refresh_token", response.data.refresh);
 
-      console.log("Успешный вход. Токен:", response.data.access);
+      setIsAuthenticated(true); // Обновляем состояние авторизации
 
-      // Перенаправление в личный кабинет
       navigate("/dashboard");
     } catch (error) {
-      if (error.response) {
-        setError(error.response.data.detail || "Ошибка при входе.");
-      } else if (error.request) {
-        setError("Ошибка сети.");
-      } else {
-        setError("Произошла неизвестная ошибка.");
-      }
+      setError("Ошибка при входе.");
       console.error("Ошибка при входе:", error);
     } finally {
       setLoading(false);

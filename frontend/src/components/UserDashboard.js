@@ -1,28 +1,20 @@
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const UserDashboard = () => {
+const UserDashboard = ({ setIsAuthenticated }) => {
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-
-  const handleLogout = () => {
-    // Очистка токенов и редирект на страницу авторизации
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    // Очистка куки
-    document.cookie = "access_token=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    document.cookie = "refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    navigate("/login"); // Перенаправление на страницу логина
-  };
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const token = localStorage.getItem("access_token");
         if (!token) {
-          setError("Пожалуйста, войдите в систему.");
+          setError("Необходимо войти в систему.");
+          navigate("/login");
           return;
         }
 
@@ -39,7 +31,14 @@ const UserDashboard = () => {
     };
 
     fetchUserData();
-  }, []);
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    setIsAuthenticated(false);
+    navigate("/");
+  };
 
   return (
     <div>
@@ -47,9 +46,8 @@ const UserDashboard = () => {
       {error && <p style={{ color: "red" }}>{error}</p>}
       {userData ? (
         <div>
-          <p>ID: {userData.id}</p>
+          <p>Имя: {userData.name}</p>
           <p>Телефон: {userData.phone_number}</p>
-          {/* Кнопка "Выйти" */}
           <button onClick={handleLogout}>Выйти</button>
         </div>
       ) : (
