@@ -1,0 +1,7 @@
+{% extends "admin/base.html" %}
+{% load static %}  {# Добавлено, чтобы использовать {% static %} #}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script src="{% static 'admin/js/camera.js' %}"></script>
+{% endblock %}

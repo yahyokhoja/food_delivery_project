@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Список блюд</title>
+</head>
+<body>
+    <h1>Список блюд</h1>
+    <ul>
+        {% for food in foods %}
+            <li>{{ food.name }} - {{ food.price }} руб.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
