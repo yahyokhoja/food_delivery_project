@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views  # Импортируем представления из views.py
 from .views import FoodItemListView
-
+from .views import food_list
 
 
 
@@ -14,7 +14,7 @@ urlpatterns = [
           path('<int:id>/', views.order_detail, name='order_detail'),  # Детали заказа
 
   path('create/', views.create_order, name='create_order'),
-  
+   path('foods/', food_list, name='food-list'),
  
 ]
 

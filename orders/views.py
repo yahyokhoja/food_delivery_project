@@ -6,6 +6,12 @@ from rest_framework.generics import ListAPIView
 from .models import Order
 from django.shortcuts import render, redirect
 from .forms import OrderForm
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from .models import FoodItem
+from .serializers import FoodItemSerializer
+
+
 
 def create_order(request):
     if request.method == 'POST':
@@ -32,3 +38,9 @@ def order_detail(request, id):
     return render(request, 'orders/order_detail.html', {'order': order})
 
 
+
+@api_view(['GET'])
+def food_list(request):
+    foods = FoodItem.objects.all()
+    serializer = FoodItemSerializer(foods, many=True)
+    return Response(serializer.data)

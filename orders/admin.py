@@ -10,6 +10,11 @@ class ProductAdmin(admin.ModelAdmin):
 
 admin.site.register(Product, ProductAdmin)  # Регистрация модели Product
 
-admin.site.register(FoodItem)
+
+
+@admin.register(FoodItem)
+class FoodItemAdmin(admin.ModelAdmin):
+    list_display = ('name', 'price')
+
 
 

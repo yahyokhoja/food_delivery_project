@@ -22,5 +22,3 @@ class CustomUserAdmin(admin.ModelAdmin):
 admin.site.register(CustomUser, CustomUserAdmin)
 
 
-
-admin.site.register(FoodItem, FoodItemAdmin)
