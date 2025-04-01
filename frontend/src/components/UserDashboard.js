@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -12,8 +11,11 @@ const UserDashboard = ({ setIsAuthenticated }) => {
     const fetchUserData = async () => {
       try {
         const token = localStorage.getItem("access_token");
+        console.log("Access Token:", token);
+        
         if (!token) {
           setError("Необходимо войти в систему.");
+          setIsAuthenticated(false);
           navigate("/login");
           return;
         }
@@ -27,11 +29,13 @@ const UserDashboard = ({ setIsAuthenticated }) => {
       } catch (error) {
         setError("Ошибка при получении профиля");
         console.error("Ошибка:", error);
+        setIsAuthenticated(false);
+        navigate("/login");
       }
     };
 
     fetchUserData();
-  }, [navigate]);
+  }, [navigate, setIsAuthenticated]);
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");
